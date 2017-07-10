@@ -72,4 +72,31 @@ describe('rollup-plugin-tslint', () => {
 			assert.notEqual(err.toString().indexOf('Warnings or errors were found'), -1);
 		});
 	});
+
+	it('should detect the violation with the type checker', () => {
+		let count = 0;
+		let failure, ruleName;
+		return rollup({
+			entry: 'fixtures/typechecking.ts',
+			plugins: [
+				tslint({
+					formatter: (function() {
+						class Formatter extends Linter.Formatters.AbstractFormatter {
+							format(failures) {
+								count = failures.length;
+								failure = failures[0].failure;
+								ruleName = failures[0].ruleName;
+							}
+						}
+
+						return Formatter
+					})()
+				})
+			]
+		}).then(() => {
+			assert.equal(count, 1);
+			assert.equal(failure, 'Operands of \'+\' operation must either be both strings or both numbers');
+			assert.equal(ruleName, 'restrict-plus-operands');
+		});
+	});
 });

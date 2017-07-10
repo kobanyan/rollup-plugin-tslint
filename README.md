@@ -81,6 +81,13 @@ Default: `stylish`
 
 Custom error formatter or the name of a built-in formatter.
 
+### tsConfigSearchPath
+
+Type: `string`  
+Default: `process.cwd()`
+
+Base path to search `tsconfig.json`.
+
 
 # License
 

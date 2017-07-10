@@ -2,6 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import { createFilter } from 'rollup-pluginutils'
 import { Linter } from 'tslint'
+import ts from 'typescript'
 
 function normalizePath (id) {
   return path.relative(process.cwd(), id).split(path.sep).join('/')
@@ -19,7 +20,8 @@ export default function tslint (options = {}) {
   // rulesDirectory: null,
   // formattersDirectory: "customFormatters/"
 
-  const linter = new Linter(options)
+  const tsConfigSearchPath = options.tsConfigSearchPath || process.cwd()
+  const program = Linter.createProgram(ts.findConfigFile(tsConfigSearchPath, ts.sys.fileExists))
   const configuration = Linter.loadConfigurationFromPath(Linter.findConfigurationPath())
 
   return {
@@ -32,6 +34,7 @@ export default function tslint (options = {}) {
         return null
       }
 
+      const linter = new Linter(options, program)
       const fileContents = fs.readFileSync(fileName, 'utf8')
       linter.lint(id, fileContents, configuration)
       const result = linter.getResult()
